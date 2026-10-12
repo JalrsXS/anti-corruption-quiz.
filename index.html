@@ -7,104 +7,318 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ФОН — ФЛАГ РОССИИ */
+  html, body { height: 100%; }
+
   body {
     font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: linear-gradient(180deg,
-      #ffffff 0%, #ffffff 33.33%,
-      #0039a6 33.33%, #0039a6 66.66%,
-      #d52b1e 66.66%, #d52b1e 100%);
-    background-attachment: fixed;
+    background: #0a0f1f;
     min-height: 100vh;
     display: flex; align-items: center; justify-content: center;
     padding: 20px; color: #fff;
+    overflow-x: hidden;
     position: relative;
   }
 
-  /* Буква Z — через псевдоэлемент, чтобы не мешала контенту */
-  body::before {
-    content: "Z";
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 60vh; font-weight: 900;
-    color: rgba(255,255,255,0.07);
-    font-family: 'Arial Black', sans-serif;
-    line-height: 1;
-    pointer-events: none;
+  /* === ФЛАГ РОССИИ — анимированные волны === */
+  .flag-bg {
+    position: fixed; inset: 0;
     z-index: 0;
+    overflow: hidden;
+  }
+  .stripe {
+    position: absolute; left: 0; right: 0;
+    background-size: 200% 100%;
+    animation: stripeWave 8s ease-in-out infinite;
+  }
+  .stripe.white { top: 0; height: 33.33%; background: linear-gradient(90deg, #f8fafc, #ffffff, #e2e8f0, #ffffff, #f8fafc); }
+  .stripe.blue  { top: 33.33%; height: 33.33%; background: linear-gradient(90deg, #001d5c, #0039a6, #0050d4, #0039a6, #001d5c); }
+  .stripe.red   { top: 66.66%; height: 33.34%; background: linear-gradient(90deg, #8b1a12, #d52b1e, #ef4235, #d52b1e, #8b1a12); }
+
+  @keyframes stripeWave {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
   }
 
+  /* Лёгкое затемнение флага */
+  .flag-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 100%);
+  }
+
+  /* === БОЛЬШАЯ Z НА ФОНЕ === */
+  .z-hero {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 85vh; font-weight: 900;
+    font-family: 'Arial Black', Impact, sans-serif;
+    line-height: 0.85;
+    color: transparent;
+    -webkit-text-stroke: 4px rgba(255,255,255,0.85);
+    z-index: 1;
+    pointer-events: none;
+    animation: zPulse 3.5s ease-in-out infinite;
+    text-shadow:
+      0 0 30px rgba(255,255,255,0.6),
+      0 0 80px rgba(0,57,166,0.7),
+      0 0 140px rgba(213,43,30,0.5);
+  }
+  @keyframes zPulse {
+    0%, 100% {
+      opacity: 0.35;
+      transform: translate(-50%, -50%) scale(1);
+      filter: brightness(1);
+    }
+    50% {
+      opacity: 0.55;
+      transform: translate(-50%, -50%) scale(1.05);
+      filter: brightness(1.4);
+    }
+  }
+
+  /* Вторая Z — заливка градиентом, для объёма */
+  .z-hero::after {
+    content: 'Z';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #ffffff 0%, #ffffff 33%, #4a90e2 33%, #0050d4 66%, #ef4235 66%, #d52b1e 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 0;
+    animation: none;
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+  }
+
+  /* === ЛЕТЯЩИЕ ЧАСТИЦЫ (звёзды) === */
+  .stars {
+    position: fixed; inset: 0; z-index: 2;
+    pointer-events: none; overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #fff, 0 0 15px rgba(74,144,226,0.8);
+    animation: starFloat linear infinite;
+    opacity: 0;
+  }
+  @keyframes starFloat {
+    0%   { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+  }
+
+  /* === СВЕТЯЩИЕСЯ ЛУЧИ === */
+  .rays {
+    position: fixed; inset: 0; z-index: 2;
+    pointer-events: none; overflow: hidden;
+  }
+  .ray {
+    position: absolute;
+    width: 2px; height: 200vh;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.4), transparent);
+    top: -50%;
+    animation: raySweep 6s linear infinite;
+    opacity: 0.5;
+  }
+  @keyframes raySweep {
+    0%   { transform: translateX(0) rotate(15deg); opacity: 0; }
+    20%  { opacity: 0.6; }
+    80%  { opacity: 0.6; }
+    100% { transform: translateX(100vw) rotate(15deg); opacity: 0; }
+  }
+
+  /* === КАРТОЧКА === */
   .card {
-    background: rgba(15, 23, 42, 0.92);
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 20px; padding: 40px;
-    max-width: 640px; width: 100%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    background: rgba(10, 15, 31, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 24px;
+    padding: 44px 40px 36px;
+    max-width: 660px; width: 100%;
+    box-shadow:
+      0 25px 80px rgba(0,0,0,0.7),
+      0 0 60px rgba(0,57,166,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.1);
     position: relative; z-index: 10;
+    animation: cardIn .8s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(40px) scale(.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  /* Бейдж Z в углу */
+  /* Обводка карточки — светящаяся линия */
+  .card::before {
+    content: '';
+    position: absolute; inset: -2px;
+    border-radius: 24px;
+    padding: 2px;
+    background: linear-gradient(135deg, #ffffff, #0039a6, #d52b1e, #ffffff);
+    background-size: 300% 300%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: borderFlow 6s linear infinite;
+    z-index: -1;
+  }
+  @keyframes borderFlow {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  /* === БЕЙДЖ С БУКВОЙ Z В УГЛУ === */
   .z-badge {
-    position: absolute; top: 15px; right: 20px;
-    font-size: 22px; font-weight: 900; color: #fff;
-    border: 2px solid #d52b1e; border-radius: 8px;
-    padding: 2px 10px; background: #0039a6;
-    box-shadow: 0 0 15px rgba(213, 43, 30, 0.6);
+    position: absolute; top: -18px; right: 30px;
+    font-size: 28px; font-weight: 900;
+    font-family: 'Arial Black', sans-serif;
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0039a6, #0050d4);
+    border: 2px solid #fff;
+    box-shadow:
+      0 0 20px rgba(0,57,166,0.8),
+      0 0 40px rgba(74,144,226,0.5),
+      inset 0 0 15px rgba(255,255,255,0.2);
+    animation: badgePulse 2s ease-in-out infinite;
+    z-index: 20;
+  }
+  @keyframes badgePulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(0,57,166,0.8), 0 0 40px rgba(74,144,226,0.5); }
+    50%      { transform: scale(1.08); box-shadow: 0 0 30px rgba(213,43,30,0.9), 0 0 60px rgba(239,66,53,0.6); }
   }
 
-  h1 { font-size: 26px; margin-bottom: 8px; text-align: center; }
-  .sub { text-align: center; opacity: .8; margin-bottom: 24px; font-size: 14px; color: #dbeafe; }
-  .progress { height: 8px; background: rgba(255,255,255,.15); border-radius: 4px; margin-bottom: 24px; overflow: hidden; }
-  .progress-bar { height: 100%; background: linear-gradient(90deg, #0039a6, #d52b1e); width: 0%; transition: width .4s ease; }
+  h1 { font-size: 28px; margin-bottom: 8px; text-align: center; letter-spacing: 0.5px; }
+  .sub { text-align: center; opacity: .85; margin-bottom: 26px; font-size: 14px; color: #cbd5e1; letter-spacing: 0.5px; }
+
+  .progress { height: 8px; background: rgba(255,255,255,.12); border-radius: 4px; margin-bottom: 24px; overflow: hidden; position: relative; }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #0039a6, #4a90e2, #d52b1e);
+    background-size: 200% 100%;
+    width: 0%;
+    transition: width .5s ease;
+    border-radius: 4px;
+    animation: progressShine 2s linear infinite;
+    box-shadow: 0 0 12px rgba(74,144,226,0.8);
+  }
+  @keyframes progressShine { to { background-position: 200% 0; } }
 
   .question {
     font-size: 19px; line-height: 1.5;
     margin-bottom: 22px; min-height: 60px;
     color: #f1f5f9;
+    font-weight: 500;
   }
   .answers { display: flex; flex-direction: column; gap: 12px; }
 
   button.answer {
-    padding: 16px 20px; border: 1px solid rgba(255,255,255,.25);
-    background: rgba(255,255,255,.08); color: #fff; border-radius: 12px;
-    font-size: 15px; cursor: pointer; text-align: left; transition: all .25s;
+    padding: 16px 22px;
+    border: 1px solid rgba(255,255,255,.2);
+    background: rgba(255,255,255,.06);
+    color: #fff; border-radius: 12px;
+    font-size: 15px; cursor: pointer;
+    text-align: left;
+    transition: all .25s ease;
     font-family: inherit;
+    position: relative;
+    overflow: hidden;
   }
-  button.answer:hover:not(:disabled) { background: rgba(255,255,255,.2); transform: translateX(4px); }
-  button.answer.correct { background: #16a34a; border-color: #22c55e; box-shadow: 0 0 25px rgba(34,197,94,.6); }
-  button.answer.wrong   { background: #b91c1c; border-color: #ef4444; }
+  button.answer::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%);
+    transition: transform .6s;
+  }
+  button.answer:hover:not(:disabled)::before { transform: translateX(100%); }
+  button.answer:hover:not(:disabled) {
+    background: rgba(74,144,226,.18);
+    border-color: rgba(74,144,226,.6);
+    transform: translateX(6px);
+    box-shadow: 0 0 20px rgba(74,144,226,0.3);
+  }
+  button.answer.correct {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    border-color: #4ade80;
+    box-shadow: 0 0 30px rgba(34,197,94,.7);
+    transform: scale(1.02);
+  }
+  button.answer.wrong {
+    background: linear-gradient(135deg, #991b1b, #dc2626);
+    border-color: #ef4444;
+    animation: shake .4s ease;
+    box-shadow: 0 0 30px rgba(239,68,68,.5);
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
 
+  /* === РЕЗУЛЬТАТ === */
   .result { text-align: center; }
   .result .score {
     font-size: 90px; font-weight: 900; margin: 10px 0;
-    background: linear-gradient(90deg, #ffffff, #0039a6, #d52b1e, #ffffff);
+    background: linear-gradient(90deg, #ffffff, #4a90e2, #ef4235, #ffffff);
     background-size: 300% 100%;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: scoreReveal 1s ease both, gradientMove 3s linear infinite;
+    filter: drop-shadow(0 0 30px rgba(74,144,226,0.6));
   }
-  @keyframes scoreReveal { 0% { opacity: 0; transform: scale(.3); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes scoreReveal {
+    0% { opacity: 0; transform: scale(.3) rotate(-10deg); }
+    60% { transform: scale(1.15) rotate(5deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+  }
   @keyframes gradientMove { to { background-position: 300% 0; } }
 
   .result .verdict { font-size: 18px; margin-bottom: 24px; line-height: 1.5; color: #f1f5f9; }
+
   .restart {
-    padding: 14px 32px; background: #0039a6; color: #fff;
-    border: 2px solid #d52b1e; border-radius: 12px;
-    font-size: 16px; font-weight: 600; cursor: pointer;
+    padding: 14px 36px;
+    background: linear-gradient(135deg, #0039a6, #0050d4);
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 12px;
+    font-size: 16px; font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .3s;
+    box-shadow: 0 0 20px rgba(0,57,166,0.5);
   }
-  .restart:hover { background: #d52b1e; border-color: #0039a6; }
-  .footer { text-align: center; margin-top: 24px; font-size: 12px; opacity: .6; color: #cbd5e1; }
+  .restart:hover {
+    background: linear-gradient(135deg, #d52b1e, #ef4235);
+    transform: scale(1.06);
+    box-shadow: 0 0 35px rgba(213,43,30,0.8);
+  }
+
+  .footer { text-align: center; margin-top: 24px; font-size: 12px; opacity: .6; color: #94a3b8; }
 
   .perfect-title {
-    font-size: 34px; font-weight: 900; margin-bottom: 8px;
-    background: linear-gradient(90deg,#ffffff,#0039a6,#d52b1e,#ffffff);
+    font-size: 38px; font-weight: 900; margin-bottom: 8px;
+    background: linear-gradient(90deg,#ffffff,#4a90e2,#ef4235,#ffffff);
     background-size: 300% 100%;
     -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: gradientMove 2s linear infinite;
+    animation: gradientMove 2s linear infinite, pop .6s ease both;
+    filter: drop-shadow(0 0 25px rgba(255,255,255,0.5));
   }
-  .trophy { font-size: 80px; animation: bounce 1.2s infinite; display: inline-block; }
-  @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+  @keyframes pop {
+    0% { transform: scale(.5); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .trophy { font-size: 90px; animation: bounce 1.2s infinite; display: inline-block; filter: drop-shadow(0 0 25px rgba(255,200,50,0.8)); }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50%     { transform: translateY(-22px) rotate(5deg); }
+  }
 
+  /* === ЭФФЕКТЫ === */
   .confetti {
     position: fixed; top: -20px; width: 12px; height: 12px;
     z-index: 9999; pointer-events: none;
@@ -114,31 +328,54 @@
 
   .emoji-fly {
     position: fixed; z-index: 9998; pointer-events: none;
-    font-size: 42px; animation: flyUp linear forwards;
+    font-size: 44px; animation: flyUp linear forwards;
+    filter: drop-shadow(0 0 12px rgba(255,255,255,0.8));
   }
   @keyframes flyUp {
     0% { transform: translateY(0) scale(.5); opacity: 0; }
     20% { opacity: 1; }
-    100% { transform: translateY(-90vh) scale(1.3) rotate(360deg); opacity: 0; }
+    100% { transform: translateY(-95vh) scale(1.3) rotate(360deg); opacity: 0; }
   }
 
   .glow-ring {
     position: fixed; top: 50%; left: 50%;
     width: 200px; height: 200px; border-radius: 50%;
-    border: 4px solid rgba(0,57,166,.8);
+    border: 4px solid rgba(74,144,226,.8);
     transform: translate(-50%,-50%) scale(0);
-    animation: ringExpand 1.5s ease-out forwards;
+    animation: ringExpand 1.6s ease-out forwards;
     pointer-events: none; z-index: 5;
   }
   @keyframes ringExpand {
     0% { transform: translate(-50%,-50%) scale(0); opacity: 1; }
-    100% { transform: translate(-50%,-50%) scale(8); opacity: 0; }
+    100% { transform: translate(-50%,-50%) scale(10); opacity: 0; }
   }
-  .flash { position: fixed; inset: 0; background: #fff; z-index: 9997; pointer-events: none; animation: flashAnim .6s ease-out forwards; }
+
+  .flash {
+    position: fixed; inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(74,144,226,0.6));
+    z-index: 9997; pointer-events: none;
+    animation: flashAnim .7s ease-out forwards;
+  }
   @keyframes flashAnim { to { opacity: 0; } }
 </style>
 </head>
 <body>
+
+<!-- Флаг -->
+<div class="flag-bg">
+  <div class="stripe white"></div>
+  <div class="stripe blue"></div>
+  <div class="stripe red"></div>
+</div>
+
+<!-- Большая Z -->
+<div class="z-hero">Z</div>
+
+<!-- Звёзды -->
+<div class="stars" id="stars"></div>
+
+<!-- Лучи -->
+<div class="rays" id="rays"></div>
 
 <div class="card" id="app">
   <div class="z-badge">Z</div>
@@ -152,6 +389,31 @@
 
 <script>
 window.onload = function() {
+
+  /* === Генерация звёзд === */
+  const starsContainer = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.animationDuration = (6 + Math.random() * 8) + 's';
+    s.style.animationDelay = (Math.random() * 8) + 's';
+    s.style.width = (2 + Math.random() * 3) + 'px';
+    s.style.height = s.style.width;
+    starsContainer.appendChild(s);
+  }
+
+  /* === Генерация световых лучей === */
+  const raysContainer = document.getElementById('rays');
+  for (let i = 0; i < 4; i++) {
+    const r = document.createElement('div');
+    r.className = 'ray';
+    r.style.left = (10 + i * 25) + 'vw';
+    r.style.animationDelay = (i * 1.5) + 's';
+    raysContainer.appendChild(r);
+  }
+
+  /* === ВОПРОСЫ === */
   const questions = [
     { q: "Что такое коррупция в самом общем смысле?",
       a: ["Злоупотребление служебным положением в личных целях","Любая ошибка чиновника","Повышение по службе","Штраф за нарушение ПДД"], correct: 0 },
@@ -233,30 +495,31 @@ window.onload = function() {
       n++;
       scoreEl.textContent = n + ' / ' + questions.length;
       if (n >= score) clearInterval(timer);
-    }, perfect ? 150 : 200);
+    }, perfect ? 130 : 190);
 
-    if (perfect) setTimeout(() => { launchConfetti(); launchEmojiRain(); launchRings(); launchFlash(); }, 1200);
+    if (perfect) setTimeout(() => { launchConfetti(); launchEmojiRain(); launchRings(); launchFlash(); }, 1000);
   }
 
   function launchConfetti() {
-    const colors = ['#ffffff','#0039a6','#d52b1e'];
-    for (let i = 0; i < 200; i++) {
+    const colors = ['#ffffff','#0039a6','#4a90e2','#d52b1e','#ef4235'];
+    for (let i = 0; i < 220; i++) {
       const c = document.createElement('div');
       c.className = 'confetti';
       c.style.left = Math.random() * 100 + 'vw';
       c.style.background = colors[Math.floor(Math.random() * colors.length)];
       c.style.width = (6 + Math.random() * 10) + 'px';
       c.style.height = (6 + Math.random() * 14) + 'px';
-      c.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
-      c.style.animationDelay = (Math.random() * 1.5) + 's';
+      c.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+      c.style.animationDelay = (Math.random() * 1.8) + 's';
+      if (Math.random() > 0.6) c.style.borderRadius = '50%';
       document.body.appendChild(c);
-      setTimeout(() => c.remove(), 7000);
+      setTimeout(() => c.remove(), 8000);
     }
   }
 
   function launchEmojiRain() {
-    const emojis = ['🎉','🏆','✨','💪','⭐','🎊','🛡️','🇷🇺','Z'];
-    for (let i = 0; i < 35; i++) {
+    const emojis = ['🎉','🏆','✨','💪','⭐','🎊','🛡️','🇷🇺','Z','🔥','👏'];
+    for (let i = 0; i < 40; i++) {
       const e = document.createElement('div');
       e.className = 'emoji-fly';
       e.textContent = emojis[Math.floor(Math.random() * emojis.length)];
@@ -265,20 +528,20 @@ window.onload = function() {
       e.style.animationDuration = (3 + Math.random() * 3) + 's';
       e.style.animationDelay = (Math.random() * 2) + 's';
       document.body.appendChild(e);
-      setTimeout(() => e.remove(), 8000);
+      setTimeout(() => e.remove(), 8500);
     }
   }
 
   function launchRings() {
-    const ringColors = ['rgba(255,255,255,.8)','rgba(0,57,166,.8)','rgba(213,43,30,.8)','rgba(255,255,255,.8)'];
+    const ringColors = ['rgba(255,255,255,.9)','rgba(74,144,226,.9)','rgba(239,66,53,.9)','rgba(255,255,255,.9)'];
     for (let i = 0; i < 4; i++) {
       setTimeout(() => {
         const r = document.createElement('div');
         r.className = 'glow-ring';
         r.style.borderColor = ringColors[i];
         document.body.appendChild(r);
-        setTimeout(() => r.remove(), 1600);
-      }, i * 250);
+        setTimeout(() => r.remove(), 1700);
+      }, i * 220);
     }
   }
 
@@ -286,7 +549,7 @@ window.onload = function() {
     const f = document.createElement('div');
     f.className = 'flash';
     document.body.appendChild(f);
-    setTimeout(() => f.remove(), 700);
+    setTimeout(() => f.remove(), 750);
   }
 
   render();
