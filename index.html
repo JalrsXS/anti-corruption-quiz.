@@ -6,17 +6,33 @@
 <title>СтопКоррупция — интерактивный квиз</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  /* ФОН — ФЛАГ РОССИИ */
   body {
     font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    background: linear-gradient(180deg, 
+      #ffffff 0%, #ffffff 33.3%, 
+      #0039a6 33.3%, #0039a6 66.6%, 
+      #d52b1e 66.6%, #d52b1e 100%);
+    background-attachment: fixed;
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
     padding: 20px; color: #fff; overflow: hidden; position: relative;
   }
+
+  /* БОЛЬШАЯ БУКВА Z НА ФОНЕ */
+  .z-watermark {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 70vh; font-weight: 900; color: rgba(255,255,255,0.08);
+    z-index: 1; pointer-events: none; font-family: 'Arial Black', sans-serif;
+    line-height: 1; text-shadow: 0 0 40px rgba(0,0,0,0.1);
+  }
+
   .card {
-    background: rgba(255,255,255,0.08); backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(15, 23, 42, 0.88); /* Темный фон для читаемости */
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.3);
     border-radius: 20px; padding: 40px; max-width: 640px; width: 100%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
     position: relative; z-index: 10;
     animation: cardIn .6s ease;
   }
@@ -24,19 +40,33 @@
     from { opacity: 0; transform: translateY(30px) scale(.95); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
-  h1 { font-size: 26px; margin-bottom: 8px; text-align: center; }
-  .sub { text-align: center; opacity: .75; margin-bottom: 28px; font-size: 14px; }
-  .progress { height: 6px; background: rgba(255,255,255,.15); border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
-  .progress-bar { height: 100%; background: linear-gradient(90deg,#4ade80,#22d3ee); width: 0%; transition: width .4s ease; }
-  .question { font-size: 19px; line-height: 1.5; margin-bottom: 22px; min-height: 60px; animation: fadeIn .4s ease; }
+
+  /* БЕЙДЖ С БУКВОЙ Z В УГЛУ КАРТОЧКИ */
+  .z-badge {
+    position: absolute; top: 15px; right: 20px;
+    font-size: 22px; font-weight: 900; color: #fff;
+    border: 2px solid #d52b1e; border-radius: 8px;
+    padding: 2px 10px; background: #0039a6;
+    box-shadow: 0 0 15px rgba(213, 43, 30, 0.6);
+    z-index: 20;
+  }
+
+  h1 { font-size: 26px; margin-bottom: 8px; text-align: center; color: #fff; }
+  .sub { text-align: center; opacity: .8; margin-bottom: 28px; font-size: 14px; color: #dbeafe; }
+  
+  .progress { height: 8px; background: rgba(255,255,255,.15); border-radius: 4px; margin-bottom: 24px; overflow: hidden; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, #0039a6, #d52b1e); width: 0%; transition: width .4s ease; }
+  
+  .question { font-size: 19px; line-height: 1.5; margin-bottom: 22px; min-height: 60px; animation: fadeIn .4s ease; color: #f1f5f9; }
   @keyframes fadeIn { from { opacity:0; transform: translateX(-15px);} to {opacity:1; transform: translateX(0);} }
+  
   .answers { display: flex; flex-direction: column; gap: 12px; }
   button.answer {
     padding: 16px 20px; border: 1px solid rgba(255,255,255,.25);
-    background: rgba(255,255,255,.05); color: #fff; border-radius: 12px;
+    background: rgba(255,255,255,.08); color: #fff; border-radius: 12px;
     font-size: 15px; cursor: pointer; text-align: left; transition: all .25s;
   }
-  button.answer:hover:not(:disabled) { background: rgba(255,255,255,.18); transform: translateX(4px); }
+  button.answer:hover:not(:disabled) { background: rgba(255,255,255,.2); transform: translateX(4px); }
   button.answer.correct { background: #16a34a; border-color: #22c55e; transform: scale(1.02); box-shadow: 0 0 25px rgba(34,197,94,.6); }
   button.answer.wrong   { background: #b91c1c; border-color: #ef4444; animation: shake .4s ease; }
   @keyframes shake {
@@ -49,7 +79,7 @@
   .result { text-align: center; position: relative; z-index: 10; }
   .result .score {
     font-size: 90px; font-weight: 900; margin: 10px 0;
-    background: linear-gradient(90deg, #4ade80, #22d3ee, #a78bfa, #4ade80);
+    background: linear-gradient(90deg, #ffffff, #0039a6, #d52b1e, #ffffff);
     background-size: 300% 100%;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: scoreReveal 1s cubic-bezier(.2,.9,.3,1.2) both, gradientMove 3s linear infinite;
@@ -61,21 +91,20 @@
   }
   @keyframes gradientMove { to { background-position: 300% 0; } }
 
-  .result .verdict { font-size: 18px; margin-bottom: 24px; line-height: 1.5; animation: fadeIn .8s .4s both; }
+  .result .verdict { font-size: 18px; margin-bottom: 24px; line-height: 1.5; animation: fadeIn .8s .4s both; color: #f1f5f9; }
 
   .restart {
-    padding: 14px 32px; background: #4ade80; color: #0f172a;
-    border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
-    animation: fadeIn .8s .6s both;
-    transition: transform .2s;
+    padding: 14px 32px; background: #0039a6; color: #fff;
+    border: 2px solid #d52b1e; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+    animation: fadeIn .8s .6s both; transition: transform .2s;
   }
-  .restart:hover { background: #22c55e; transform: scale(1.06); }
-  .footer { text-align: center; margin-top: 24px; font-size: 12px; opacity: .55; }
+  .restart:hover { background: #d52b1e; border-color: #0039a6; transform: scale(1.06); }
+  .footer { text-align: center; margin-top: 24px; font-size: 12px; opacity: .6; color: #cbd5e1; }
 
   /* ========= ЭФФЕКТЫ ПРИ ИДЕАЛЬНОМ РЕЗУЛЬТАТЕ ========= */
   .perfect-title {
     font-size: 34px; font-weight: 900; margin-bottom: 8px;
-    background: linear-gradient(90deg,#fbbf24,#f472b6,#a78bfa,#4ade80,#fbbf24);
+    background: linear-gradient(90deg,#ffffff,#0039a6,#d52b1e,#ffffff);
     background-size: 300% 100%;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: gradientMove 2s linear infinite, pop .6s ease both;
@@ -110,7 +139,7 @@
   .glow-ring {
     position: fixed; top: 50%; left: 50%;
     width: 200px; height: 200px; border-radius: 50%;
-    border: 4px solid rgba(74,222,128,.8);
+    border: 4px solid rgba(0,57,166,.8);
     transform: translate(-50%,-50%) scale(0);
     animation: ringExpand 1.5s ease-out forwards;
     pointer-events: none; z-index: 5;
@@ -129,7 +158,12 @@
 </style>
 </head>
 <body>
+
+<!-- Большая Z на фоне -->
+<div class="z-watermark">Z</div>
+
 <div class="card" id="app">
+  <div class="z-badge">Z</div>
   <h1>🛡️ СтопКоррупция</h1>
   <div class="sub">Интерактивный квиз • 8 вопросов</div>
   <div class="progress"><div class="progress-bar" id="bar"></div></div>
@@ -221,7 +255,6 @@ function showResult() {
       <div class="footer">Квиз создан с использованием технологий ИИ • личный вклад: концепция, отбор вопросов, дизайн</div>
     </div>`;
 
-  // Анимированный счётчик от 0 до score
   const scoreEl = document.getElementById('scoreEl');
   let n = 0;
   const timer = setInterval(() => {
@@ -242,10 +275,10 @@ function showResult() {
 
 /* ============ СПЕЦЭФФЕКТЫ ============ */
 
-// Конфетти
+// Конфетти в цветах флага
 function launchConfetti() {
-  const colors = ['#4ade80','#22d3ee','#a78bfa','#f472b6','#fbbf24','#ef4444','#ffffff'];
-  for (let i = 0; i < 180; i++) {
+  const colors = ['#ffffff', '#0039a6', '#d52b1e', '#ffffff', '#0039a6', '#d52b1e'];
+  for (let i = 0; i < 200; i++) {
     const c = document.createElement('div');
     c.className = 'confetti';
     c.style.left = Math.random() * 100 + 'vw';
@@ -260,10 +293,10 @@ function launchConfetti() {
   }
 }
 
-// Летящие эмодзи
+// Летящие эмодзи (добавлены Z и флаг)
 function launchEmojiRain() {
-  const emojis = ['🎉','🏆','✨','💪','⭐','🎊','🛡️','🔥','👏'];
-  for (let i = 0; i < 30; i++) {
+  const emojis = ['🎉','🏆','✨','💪','⭐','🎊','🛡️','🔥','👏','🇷🇺','Z'];
+  for (let i = 0; i < 35; i++) {
     const e = document.createElement('div');
     e.className = 'emoji-fly';
     e.textContent = emojis[Math.floor(Math.random() * emojis.length)];
@@ -276,13 +309,14 @@ function launchEmojiRain() {
   }
 }
 
-// Расходящиеся кольца
+// Расходящиеся кольца в цветах флага
 function launchRings() {
+  const ringColors = ['rgba(255,255,255,.8)','rgba(0,57,166,.8)','rgba(213,43,30,.8)','rgba(255,255,255,.8)'];
   for (let i = 0; i < 4; i++) {
     setTimeout(() => {
       const r = document.createElement('div');
       r.className = 'glow-ring';
-      r.style.borderColor = ['rgba(74,222,128,.8)','rgba(34,211,238,.8)','rgba(167,139,250,.8)','rgba(251,191,36,.8)'][i];
+      r.style.borderColor = ringColors[i];
       document.body.appendChild(r);
       setTimeout(() => r.remove(), 1600);
     }, i * 250);
