@@ -10,37 +10,122 @@
     font-family: 'Segoe UI', Tahoma, sans-serif;
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 20px; color: #fff;
+    padding: 20px; color: #fff; overflow: hidden; position: relative;
   }
   .card {
     background: rgba(255,255,255,0.08); backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 20px; padding: 40px; max-width: 640px; width: 100%;
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    position: relative; z-index: 10;
+    animation: cardIn .6s ease;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px) scale(.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
   }
   h1 { font-size: 26px; margin-bottom: 8px; text-align: center; }
   .sub { text-align: center; opacity: .75; margin-bottom: 28px; font-size: 14px; }
   .progress { height: 6px; background: rgba(255,255,255,.15); border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
-  .progress-bar { height: 100%; background: #4ade80; width: 0%; transition: width .4s ease; }
-  .question { font-size: 19px; line-height: 1.5; margin-bottom: 22px; min-height: 60px; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg,#4ade80,#22d3ee); width: 0%; transition: width .4s ease; }
+  .question { font-size: 19px; line-height: 1.5; margin-bottom: 22px; min-height: 60px; animation: fadeIn .4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform: translateX(-15px);} to {opacity:1; transform: translateX(0);} }
   .answers { display: flex; flex-direction: column; gap: 12px; }
   button.answer {
     padding: 16px 20px; border: 1px solid rgba(255,255,255,.25);
     background: rgba(255,255,255,.05); color: #fff; border-radius: 12px;
-    font-size: 15px; cursor: pointer; text-align: left; transition: all .2s;
+    font-size: 15px; cursor: pointer; text-align: left; transition: all .25s;
   }
   button.answer:hover:not(:disabled) { background: rgba(255,255,255,.18); transform: translateX(4px); }
-  button.answer.correct { background: #16a34a; border-color: #22c55e; }
-  button.answer.wrong   { background: #b91c1c; border-color: #ef4444; }
-  .result { text-align: center; }
-  .result .score { font-size: 64px; font-weight: bold; color: #4ade80; margin: 16px 0; }
-  .result .verdict { font-size: 18px; margin-bottom: 24px; line-height: 1.5; }
+  button.answer.correct { background: #16a34a; border-color: #22c55e; transform: scale(1.02); box-shadow: 0 0 25px rgba(34,197,94,.6); }
+  button.answer.wrong   { background: #b91c1c; border-color: #ef4444; animation: shake .4s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  /* ========= РЕЗУЛЬТАТ ========= */
+  .result { text-align: center; position: relative; z-index: 10; }
+  .result .score {
+    font-size: 90px; font-weight: 900; margin: 10px 0;
+    background: linear-gradient(90deg, #4ade80, #22d3ee, #a78bfa, #4ade80);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: scoreReveal 1s cubic-bezier(.2,.9,.3,1.2) both, gradientMove 3s linear infinite;
+  }
+  @keyframes scoreReveal {
+    0% { opacity: 0; transform: scale(.3) rotate(-15deg); }
+    60% { transform: scale(1.15) rotate(5deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  @keyframes gradientMove { to { background-position: 300% 0; } }
+
+  .result .verdict { font-size: 18px; margin-bottom: 24px; line-height: 1.5; animation: fadeIn .8s .4s both; }
+
   .restart {
     padding: 14px 32px; background: #4ade80; color: #0f172a;
     border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+    animation: fadeIn .8s .6s both;
+    transition: transform .2s;
   }
-  .restart:hover { background: #22c55e; }
+  .restart:hover { background: #22c55e; transform: scale(1.06); }
   .footer { text-align: center; margin-top: 24px; font-size: 12px; opacity: .55; }
+
+  /* ========= ЭФФЕКТЫ ПРИ ИДЕАЛЬНОМ РЕЗУЛЬТАТЕ ========= */
+  .perfect-title {
+    font-size: 34px; font-weight: 900; margin-bottom: 8px;
+    background: linear-gradient(90deg,#fbbf24,#f472b6,#a78bfa,#4ade80,#fbbf24);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: gradientMove 2s linear infinite, pop .6s ease both;
+  }
+  @keyframes pop { 0%{transform:scale(.5);opacity:0;} 70%{transform:scale(1.15);} 100%{transform:scale(1);opacity:1;} }
+
+  .trophy { font-size: 80px; animation: bounce 1.2s infinite; display: inline-block; }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50%     { transform: translateY(-20px) rotate(5deg); }
+  }
+
+  .confetti {
+    position: fixed; top: -20px; width: 12px; height: 12px;
+    z-index: 9999; pointer-events: none; border-radius: 2px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  .emoji-fly {
+    position: fixed; z-index: 9998; pointer-events: none;
+    font-size: 42px; animation: flyUp linear forwards;
+  }
+  @keyframes flyUp {
+    0%   { transform: translateY(0) scale(.5) rotate(0); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translateY(-90vh) scale(1.3) rotate(360deg); opacity: 0; }
+  }
+
+  .glow-ring {
+    position: fixed; top: 50%; left: 50%;
+    width: 200px; height: 200px; border-radius: 50%;
+    border: 4px solid rgba(74,222,128,.8);
+    transform: translate(-50%,-50%) scale(0);
+    animation: ringExpand 1.5s ease-out forwards;
+    pointer-events: none; z-index: 5;
+  }
+  @keyframes ringExpand {
+    0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%,-50%) scale(8); opacity: 0; }
+  }
+
+  .flash {
+    position: fixed; inset: 0; background: #fff;
+    z-index: 9997; pointer-events: none;
+    animation: flashAnim .6s ease-out forwards;
+  }
+  @keyframes flashAnim { to { opacity: 0; } }
 </style>
 </head>
 <body>
@@ -56,60 +141,21 @@
 <script>
 const questions = [
   { q: "Что такое коррупция в самом общем смысле?",
-    a: ["Злоупотребление служебным положением в личных целях",
-        "Любая ошибка чиновника",
-        "Повышение по службе",
-        "Штраф за нарушение ПДД"],
-    correct: 0 },
-
+    a: ["Злоупотребление служебным положением в личных целях","Любая ошибка чиновника","Повышение по службе","Штраф за нарушение ПДД"], correct: 0 },
   { q: "Какое из этих действий является коррупционным правонарушением?",
-    a: ["Получение взятки должностным лицом",
-        "Подарок учителю на день рождения стоимостью 300 руб.",
-        "Оплата коммунальных услуг",
-        "Участие в выборах"],
-    correct: 0 },
-
+    a: ["Получение взятки должностным лицом","Подарок учителю на день рождения стоимостью 300 руб.","Оплата коммунальных услуг","Участие в выборах"], correct: 0 },
   { q: "Федеральный закон № 273-ФЗ регулирует:",
-    a: ["Противодействие коррупции",
-        "Правила дорожного движения",
-        "Защиту прав потребителей",
-        "Трудовой кодекс"],
-    correct: 0 },
-
+    a: ["Противодействие коррупции","Правила дорожного движения","Защиту прав потребителей","Трудовой кодекс"], correct: 0 },
   { q: "Что делать, если у вас вымогают взятку?",
-    a: ["Сообщить в правоохранительные органы (МВД, СК, прокуратуру)",
-        "Заплатить и забыть",
-        "Рассказать только друзьям",
-        "Написать жалобу в соцсетях"],
-    correct: 0 },
-
+    a: ["Сообщить в правоохранительные органы (МВД, СК, прокуратуру)","Заплатить и забыть","Рассказать только друзьям","Написать жалобу в соцсетях"], correct: 0 },
   { q: "Кто может быть субъектом коррупции?",
-    a: ["Только должностное лицо или лицо, выполняющее управленческие функции",
-        "Только президент",
-        "Любой гражданин без исключений",
-        "Только полицейский"],
-    correct: 0 },
-
+    a: ["Только должностное лицо или лицо, выполняющее управленческие функции","Только президент","Любой гражданин без исключений","Только полицейский"], correct: 0 },
   { q: "Что такое «конфликт интересов»?",
-    a: ["Ситуация, когда личная заинтересованность влияет на служебные обязанности",
-        "Спор двух коллег",
-        "Судебное разбирательство",
-        "Отказ от повышения"],
-    correct: 0 },
-
+    a: ["Ситуация, когда личная заинтересованность влияет на служебные обязанности","Спор двух коллег","Судебное разбирательство","Отказ от повышения"], correct: 0 },
   { q: "Куда можно сообщить о факте коррупции анонимно?",
-    a: ["На горячую линию или через портал «Госуслуги»/веб-приёмную",
-        "Только лично в кабинет начальника",
-        "Никуда — анонимные обращения не принимают",
-        "В редакцию газеты"],
-    correct: 0 },
-
+    a: ["На горячую линию или через портал «Госуслуги»/веб-приёмную","Только лично в кабинет начальника","Никуда — анонимные обращения не принимают","В редакцию газеты"], correct: 0 },
   { q: "Главная цель противодействия коррупции:",
-    a: ["Защита прав и свобод граждан, интересов общества и государства",
-        "Ужесточение наказаний без разбора",
-        "Уменьшение числа чиновников",
-        "Рост налогов"],
-    correct: 0 }
+    a: ["Защита прав и свобод граждан, интересов общества и государства","Ужесточение наказаний без разбора","Уменьшение числа чиновников","Рост налогов"], correct: 0 }
 ];
 
 // перемешиваем варианты
@@ -131,6 +177,8 @@ function render() {
   bar.style.width = (current / questions.length * 100) + '%';
   const item = questions[current];
   questionEl.textContent = item.q;
+  questionEl.style.animation = 'none'; void questionEl.offsetWidth;
+  questionEl.style.animation = 'fadeIn .4s ease';
   answersEl.innerHTML = '';
   item.a.forEach((text, i) => {
     const btn = document.createElement('button');
@@ -156,23 +204,98 @@ function select(i, btn) {
 function showResult() {
   bar.style.width = '100%';
   const percent = Math.round(score / questions.length * 100);
+  const perfect = score === questions.length;
+
   let verdict;
-  if (percent === 100) verdict = "Идеально! Ты настоящий знаток антикоррупционного законодательства 💪";
+  if (perfect) verdict = "Идеально! Ты настоящий знаток антикоррупционного законодательства 💪";
   else if (percent >= 75) verdict = "Отличный результат! Основы ты знаешь хорошо.";
   else if (percent >= 50) verdict = "Неплохо, но стоит повторить материал.";
   else verdict = "Попробуй ещё раз — тема важная и нужная!";
 
   app.innerHTML = `
     <div class="result">
-      <h1>Результат</h1>
-      <div class="score">${score} / ${questions.length}</div>
+      ${perfect ? '<div class="trophy">🏆</div><div class="perfect-title">ПОБЕДА!</div>' : '<h1>Результат</h1>'}
+      <div class="score" id="scoreEl">0 / ${questions.length}</div>
       <div class="verdict">${verdict}</div>
       <button class="restart" onclick="location.reload()">Пройти заново</button>
       <div class="footer">Квиз создан с использованием технологий ИИ • личный вклад: концепция, отбор вопросов, дизайн</div>
     </div>`;
+
+  // Анимированный счётчик от 0 до score
+  const scoreEl = document.getElementById('scoreEl');
+  let n = 0;
+  const timer = setInterval(() => {
+    n++;
+    scoreEl.textContent = n + ' / ' + questions.length;
+    if (n >= score) clearInterval(timer);
+  }, perfect ? 150 : 200);
+
+  if (perfect) {
+    setTimeout(() => {
+      launchConfetti();
+      launchEmojiRain();
+      launchRings();
+      launchFlash();
+    }, 1200);
+  }
 }
 
-render();
+/* ============ СПЕЦЭФФЕКТЫ ============ */
+
+// Конфетти
+function launchConfetti() {
+  const colors = ['#4ade80','#22d3ee','#a78bfa','#f472b6','#fbbf24','#ef4444','#ffffff'];
+  for (let i = 0; i < 180; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.width = (6 + Math.random() * 10) + 'px';
+    c.style.height = (6 + Math.random() * 14) + 'px';
+    c.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+    c.style.animationDelay = (Math.random() * 1.5) + 's';
+    if (Math.random() > 0.6) c.style.borderRadius = '50%';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 7000);
+  }
+}
+
+// Летящие эмодзи
+function launchEmojiRain() {
+  const emojis = ['🎉','🏆','✨','💪','⭐','🎊','🛡️','🔥','👏'];
+  for (let i = 0; i < 30; i++) {
+    const e = document.createElement('div');
+    e.className = 'emoji-fly';
+    e.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    e.style.left = Math.random() * 90 + 'vw';
+    e.style.bottom = '-60px';
+    e.style.animationDuration = (3 + Math.random() * 3) + 's';
+    e.style.animationDelay = (Math.random() * 2) + 's';
+    document.body.appendChild(e);
+    setTimeout(() => e.remove(), 8000);
+  }
+}
+
+// Расходящиеся кольца
+function launchRings() {
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => {
+      const r = document.createElement('div');
+      r.className = 'glow-ring';
+      r.style.borderColor = ['rgba(74,222,128,.8)','rgba(34,211,238,.8)','rgba(167,139,250,.8)','rgba(251,191,36,.8)'][i];
+      document.body.appendChild(r);
+      setTimeout(() => r.remove(), 1600);
+    }, i * 250);
+  }
+}
+
+// Белая вспышка
+function launchFlash() {
+  const f = document.createElement('div');
+  f.className = 'flash';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 700);
+}
 </script>
 </body>
 </html>
