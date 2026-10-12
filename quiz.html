@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СтопКоррупция — интерактивный квиз</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 20px; color: #fff;
+  }
+  .card {
+    background: rgba(255,255,255,0.08); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px; padding: 40px; max-width: 640px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  h1 { font-size: 26px; margin-bottom: 8px; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin-bottom: 28px; font-size: 14px; }
+  .progress { height: 6px; background: rgba(255,255,255,.15); border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
+  .progress-bar { height: 100%; background: #4ade80; width: 0%; transition: width .4s ease; }
+  .question { font-size: 19px; line-height: 1.5; margin-bottom: 22px; min-height: 60px; }
+  .answers { display: flex; flex-direction: column; gap: 12px; }
+  button.answer {
+    padding: 16px 20px; border: 1px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.05); color: #fff; border-radius: 12px;
+    font-size: 15px; cursor: pointer; text-align: left; transition: all .2s;
+  }
+  button.answer:hover:not(:disabled) { background: rgba(255,255,255,.18); transform: translateX(4px); }
+  button.answer.correct { background: #16a34a; border-color: #22c55e; }
+  button.answer.wrong   { background: #b91c1c; border-color: #ef4444; }
+  .result { text-align: center; }
+  .result .score { font-size: 64px; font-weight: bold; color: #4ade80; margin: 16px 0; }
+  .result .verdict { font-size: 18px; margin-bottom: 24px; line-height: 1.5; }
+  .restart {
+    padding: 14px 32px; background: #4ade80; color: #0f172a;
+    border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .restart:hover { background: #22c55e; }
+  .footer { text-align: center; margin-top: 24px; font-size: 12px; opacity: .55; }
+</style>
+</head>
+<body>
+<div class="card" id="app">
+  <h1>🛡️ СтопКоррупция</h1>
+  <div class="sub">Интерактивный квиз • 8 вопросов</div>
+  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+  <div class="question" id="question"></div>
+  <div class="answers" id="answers"></div>
+  <div class="footer">Квиз создан с использованием технологий ИИ • личный вклад: концепция, отбор вопросов, дизайн</div>
+</div>
+
+<script>
+const questions = [
+  { q: "Что такое коррупция в самом общем смысле?",
+    a: ["Злоупотребление служебным положением в личных целях",
+        "Любая ошибка чиновника",
+        "Повышение по службе",
+        "Штраф за нарушение ПДД"],
+    correct: 0 },
+
+  { q: "Какое из этих действий является коррупционным правонарушением?",
+    a: ["Получение взятки должностным лицом",
+        "Подарок учителю на день рождения стоимостью 300 руб.",
+        "Оплата коммунальных услуг",
+        "Участие в выборах"],
+    correct: 0 },
+
+  { q: "Федеральный закон № 273-ФЗ регулирует:",
+    a: ["Противодействие коррупции",
+        "Правила дорожного движения",
+        "Защиту прав потребителей",
+        "Трудовой кодекс"],
+    correct: 0 },
+
+  { q: "Что делать, если у вас вымогают взятку?",
+    a: ["Сообщить в правоохранительные органы (МВД, СК, прокуратуру)",
+        "Заплатить и забыть",
+        "Рассказать только друзьям",
+        "Написать жалобу в соцсетях"],
+    correct: 0 },
+
+  { q: "Кто может быть субъектом коррупции?",
+    a: ["Только должностное лицо или лицо, выполняющее управленческие функции",
+        "Только президент",
+        "Любой гражданин без исключений",
+        "Только полицейский"],
+    correct: 0 },
+
+  { q: "Что такое «конфликт интересов»?",
+    a: ["Ситуация, когда личная заинтересованность влияет на служебные обязанности",
+        "Спор двух коллег",
+        "Судебное разбирательство",
+        "Отказ от повышения"],
+    correct: 0 },
+
+  { q: "Куда можно сообщить о факте коррупции анонимно?",
+    a: ["На горячую линию или через портал «Госуслуги»/веб-приёмную",
+        "Только лично в кабинет начальника",
+        "Никуда — анонимные обращения не принимают",
+        "В редакцию газеты"],
+    correct: 0 },
+
+  { q: "Главная цель противодействия коррупции:",
+    a: ["Защита прав и свобод граждан, интересов общества и государства",
+        "Ужесточение наказаний без разбора",
+        "Уменьшение числа чиновников",
+        "Рост налогов"],
+    correct: 0 }
+];
+
+// перемешиваем варианты
+questions.forEach(item => {
+  const pairs = item.a.map((text, i) => ({ text, ok: i === item.correct }));
+  pairs.sort(() => Math.random() - 0.5);
+  item.a = pairs.map(p => p.text);
+  item.correct = pairs.findIndex(p => p.ok);
+});
+
+let current = 0, score = 0;
+const app = document.getElementById('app');
+const questionEl = document.getElementById('question');
+const answersEl = document.getElementById('answers');
+const bar = document.getElementById('bar');
+
+function render() {
+  if (current >= questions.length) return showResult();
+  bar.style.width = (current / questions.length * 100) + '%';
+  const item = questions[current];
+  questionEl.textContent = item.q;
+  answersEl.innerHTML = '';
+  item.a.forEach((text, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer';
+    btn.textContent = text;
+    btn.onclick = () => select(i, btn);
+    answersEl.appendChild(btn);
+  });
+}
+
+function select(i, btn) {
+  const item = questions[current];
+  const buttons = answersEl.querySelectorAll('button');
+  buttons.forEach(b => b.disabled = true);
+  if (i === item.correct) { btn.classList.add('correct'); score++; }
+  else {
+    btn.classList.add('wrong');
+    buttons[item.correct].classList.add('correct');
+  }
+  setTimeout(() => { current++; render(); }, 900);
+}
+
+function showResult() {
+  bar.style.width = '100%';
+  const percent = Math.round(score / questions.length * 100);
+  let verdict;
+  if (percent === 100) verdict = "Идеально! Ты настоящий знаток антикоррупционного законодательства 💪";
+  else if (percent >= 75) verdict = "Отличный результат! Основы ты знаешь хорошо.";
+  else if (percent >= 50) verdict = "Неплохо, но стоит повторить материал.";
+  else verdict = "Попробуй ещё раз — тема важная и нужная!";
+
+  app.innerHTML = `
+    <div class="result">
+      <h1>Результат</h1>
+      <div class="score">${score} / ${questions.length}</div>
+      <div class="verdict">${verdict}</div>
+      <button class="restart" onclick="location.reload()">Пройти заново</button>
+      <div class="footer">Квиз создан с использованием технологий ИИ • личный вклад: концепция, отбор вопросов, дизайн</div>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
